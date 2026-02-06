@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChordMaster Pro</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>ChordMaster Pro</h1>
+    </header>
+
+    <main>
+      <div id="fretboard-container">
+        <!-- SVG Fretboard will be injected here -->
+      </div>
+
+      <div class="controls">
+        <select id="chord-selector" class="dropdown">
+          <option value="" disabled selected>Select a Chord</option>
+          <!-- Options will be populated by JS -->
+        </select>
+        <button id="play-chord-btn" class="btn primary">Play Chord</button>
+      </div>
+
+      <div id="status-display">Ready to Rock!</div>
+    </main>
+  </div>
+
+  <!-- Load Modules -->
+  <script src="js/guitar.js"></script>
+  <script src="js/chords.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="popup.js"></script>
+</body>
+
+</html>

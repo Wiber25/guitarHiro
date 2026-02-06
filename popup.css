@@ -1,0 +1,135 @@
+:root {
+  --bg-color: #1e1e1e;
+  --text-color: #ffffff;
+  --accent-color: #ff6b6b;
+  --secondary-color: #4ecdc4;
+  --fretboard-bg: #2d2d2d;
+}
+
+body {
+  width: 400px;
+  height: 500px;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+header h1 {
+  margin: 0 0 20px 0;
+  font-size: 1.5rem;
+  text-align: center;
+  color: var(--accent-color);
+}
+
+#fretboard-container {
+  width: 100%;
+  height: 220px;
+  background-color: var(--fretboard-bg);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #444;
+  overflow: hidden;
+  /* Ensure SVG doesn't overflow */
+}
+
+/* SVG Elements Styling */
+.fretboard-svg {
+  width: 100%;
+  height: 100%;
+  background-color: #2b2b2b;
+}
+
+.string {
+  stroke: #888;
+  stroke-linecap: round;
+  pointer-events: none;
+  /* Let clicks pass through to the fret area rects if needed, or handle on strings */
+}
+
+.string-hover-area {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.string-hover-area:hover {
+  fill: rgba(255, 255, 255, 0.05);
+}
+
+.fret-line {
+  stroke: #555;
+  stroke-width: 2;
+}
+
+.nut {
+  stroke: #ddd;
+  stroke-width: 4;
+}
+
+.inlay {
+  fill: #444;
+  stroke: none;
+}
+
+.active-note-circle {
+  fill: var(--accent-color);
+  filter: drop-shadow(0 0 4px var(--accent-color));
+}
+
+.active-note-text {
+  fill: white;
+  font-size: 10px;
+  font-weight: bold;
+  pointer-events: none;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.1s, opacity 0.2s;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.primary {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.secondary {
+  background-color: var(--secondary-color);
+  color: #333;
+}
+
+#status-display {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #ccc;
+  border-top: 1px solid #333;
+  padding-top: 10px;
+}
