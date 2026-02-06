@@ -1,10 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('ChordMaster Pro Popup Loaded');
-
     // Initialize Modules
     if (window.GuitarEngine) {
         GuitarEngine.init();
-        console.log('Guitar Engine Initialized');
     }
 
     // UI Elements
@@ -215,42 +212,175 @@ document.addEventListener('DOMContentLoaded', () => {
         eStringBtn.remove(); // Remove old test button
     }
 
-    const chordSelector = document.getElementById('chord-selector');
+    const chordSelector = null; // Old selector removed
+    const chordRootSelector = document.getElementById('chord-root');
+    const chordTypeSelector = document.getElementById('chord-type');
     const playChordBtn = document.getElementById('play-chord-btn');
 
-    // Populate Chord Selector
-    if (window.ChordDB && chordSelector) {
-        ChordDB.forEach((chord, index) => {
+    // Populate Selectors
+    if (window.ChordDB && chordRootSelector && chordTypeSelector) {
+        // Populate Roots
+        Object.keys(ChordDB).forEach(root => {
             const option = document.createElement('option');
-            option.value = index;
-            option.textContent = chord.name;
-            chordSelector.appendChild(option);
+            option.value = root;
+            option.textContent = root;
+            chordRootSelector.appendChild(option);
         });
 
-        chordSelector.addEventListener('change', (e) => {
-            const index = e.target.value;
-            const chord = ChordDB[index];
-            if (chord) {
-                statusDisplay.textContent = `Selected: ${chord.name}`;
-                renderFretboard(chord.fingering);
-                // Optional: Auto-play when selected?
-                // GuitarEngine.strum(chord.fingering);
+        // Function to populate types based on root (though currently all roots have same types)
+        function updateTypeSelector() {
+            const root = chordRootSelector.value;
+            // Clear current types
+            chordTypeSelector.innerHTML = '<option value="" disabled selected>Type</option>';
+
+            if (root && ChordDB[root]) {
+                Object.keys(ChordDB[root]).forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type;
+                    chordTypeSelector.appendChild(option);
+                });
             }
+        }
+
+        // Handle Selection Changes
+        function handleSelectionChange() {
+            const root = chordRootSelector.value;
+            const type = chordTypeSelector.value;
+
+            if (root && type && ChordDB[root] && ChordDB[root][type]) {
+                const fingering = ChordDB[root][type];
+                const chordName = `${root} ${type}`;
+                statusDisplay.textContent = `Selected: ${chordName}`;
+                renderFretboard(fingering);
+            }
+        }
+
+        chordRootSelector.addEventListener('change', () => {
+            updateTypeSelector();
+            // handleSelectionChange(); // Only if we want to auto-select first type? No, wait for user.
         });
+
+        chordTypeSelector.addEventListener('change', handleSelectionChange);
     }
 
     if (playChordBtn) {
         playChordBtn.addEventListener('click', () => {
-            const index = chordSelector.value;
-            if (index !== "" && window.ChordDB) {
-                const chord = ChordDB[index];
-                if (chord) {
-                    statusDisplay.textContent = `Playing: ${chord.name}`;
-                    GuitarEngine.strum(chord.fingering);
-                }
+            const root = chordRootSelector.value;
+            const type = chordTypeSelector.value;
+
+            if (root && type && ChordDB[root]) {
+                const fingering = ChordDB[root][type];
+                const chordName = `${root} ${type}`;
+                statusDisplay.textContent = `Playing: ${chordName}`;
+                GuitarEngine.strum(fingering);
             } else {
-                statusDisplay.textContent = "Select a chord first!";
+                statusDisplay.textContent = "Select Root and Type first!";
             }
         });
+    }
+
+    // --- Quiz Logic Integration ---
+
+    // Event Listeners - Modes
+    const practiceBtn = document.getElementById('mode-practice-btn');
+    const quizAudioBtn = document.getElementById('mode-quiz-audio-btn');
+
+    const practiceControls = document.getElementById('practice-controls');
+    const quizControls = document.getElementById('quiz-controls');
+
+    function switchMode(mode) {
+        if (mode === 'practice') {
+            practiceControls.classList.remove('hidden');
+            quizControls.classList.add('hidden');
+            practiceBtn.classList.add('active');
+            quizAudioBtn.classList.remove('active');
+            if (window.QuizModule) QuizModule.stopQuiz();
+            renderFretboard(); // Reset fretboard
+            statusDisplay.textContent = "Practice Mode";
+        } else if (mode === 'audio') {
+            practiceControls.classList.add('hidden');
+            quizControls.classList.remove('hidden');
+            practiceBtn.classList.remove('active');
+            quizAudioBtn.classList.add('active');
+            startAudioQuiz();
+        }
+    }
+
+    if (practiceBtn) practiceBtn.onclick = () => switchMode('practice');
+    if (quizAudioBtn) quizAudioBtn.onclick = () => switchMode('audio');
+
+    // Quiz Functions
+    function startAudioQuiz() {
+        if (!window.QuizModule) return;
+        const question = QuizModule.startQuiz('audio');
+        renderQuizQuestion(question);
+        statusDisplay.textContent = "Audio Quiz: Listen and guess the chord!";
+
+        // Play the first chord automatically after delay
+        setTimeout(() => {
+            if (question && window.GuitarEngine) GuitarEngine.strum(question.chord.fingering);
+        }, 500);
+    }
+
+    function renderQuizQuestion(question) {
+        if (!question) return;
+
+        const quizStatus = document.getElementById('quiz-status');
+        if (quizStatus) quizStatus.textContent = `Score: ${QuizModule.score}`;
+
+        const optionsArea = document.getElementById('quiz-options-area');
+        if (optionsArea) {
+            optionsArea.innerHTML = '';
+            // Render Options
+            question.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn secondary small';
+                btn.textContent = opt;
+                btn.onclick = () => handleQuizAnswer(opt, btn);
+                optionsArea.appendChild(btn);
+            });
+        }
+
+        // Set play button action
+        const playBtn = document.getElementById('quiz-play-btn');
+        if (playBtn) {
+            playBtn.onclick = () => {
+                if (window.GuitarEngine) GuitarEngine.strum(question.chord.fingering);
+            };
+        }
+
+        // Set hint button action
+        const hintBtn = document.getElementById('quiz-hint-btn');
+        if (hintBtn) {
+            hintBtn.onclick = () => {
+                renderFretboard(question.chord.fingering); // Show fingering as hint
+            };
+        }
+
+        // Clear fretboard initially
+        renderFretboard([]);
+    }
+
+    function handleQuizAnswer(answer, btnElement) {
+        const isCorrect = QuizModule.checkAnswer(answer);
+
+        if (isCorrect) {
+            btnElement.classList.add('correct');
+            statusDisplay.textContent = "Correct! +10 Points";
+
+            // Next question after delay
+            setTimeout(() => {
+                const nextQ = QuizModule.nextQuestion();
+                renderQuizQuestion(nextQ);
+                if (window.GuitarEngine) GuitarEngine.strum(nextQ.chord.fingering);
+            }, 1000);
+        } else {
+            btnElement.classList.add('wrong');
+            statusDisplay.textContent = "Wrong! Try again.";
+        }
+
+        const quizStatus = document.getElementById('quiz-status');
+        if (quizStatus) quizStatus.textContent = `Score: ${QuizModule.score}`;
     }
 });

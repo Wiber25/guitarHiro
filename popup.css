@@ -132,4 +132,150 @@ header h1 {
   color: #ccc;
   border-top: 1px solid #333;
   padding-top: 10px;
+  margin-top: auto;
+}
+
+/* Tabs */
+.mode-controls {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 5px;
+}
+
+.tab {
+  background: transparent;
+  color: #888;
+  border-radius: 0;
+  padding: 5px 10px;
+}
+
+.tab.active {
+  color: var(--accent-color);
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Quiz Styles */
+.grid-2x2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.big-icon {
+  font-size: 1.2rem;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#quiz-status {
+  text-align: center;
+  margin: 10px 0;
+  font-weight: bold;
+  color: var(--secondary-color);
+}
+
+.small {
+  padding: 5px 10px;
+  font-size: 0.8rem;
+}
+
+/* Animations */
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  50% {
+    transform: translateX(5px);
+  }
+
+  75% {
+    transform: translateX(-5px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.btn.wrong {
+  background-color: #c0392b !important;
+  color: white;
+  animation: shake 0.3s ease-in-out;
+}
+
+.btn.correct {
+  background-color: #27ae60 !important;
+  color: white;
+  animation: pop 0.3s ease-in-out;
+}
+
+/* Enhanced Button Hover */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  opacity: 1;
+  /* Override opacity hover */
+  filter: brightness(1.1);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown {
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #333;
+  color: white;
+  border: 1px solid #555;
+  outline: none;
+}
+
+.dropdown:focus {
+  border-color: var(--accent-color);
+}
+
+.chord-selection-group {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.chord-selection-group .dropdown {
+  flex: 1;
 }
