@@ -213,28 +213,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const chordSelector = null; // Old selector removed
-    const chordRootSelector = document.getElementById('chord-root');
+    const chordRootContainer = document.getElementById('chord-root-container');
     const chordTypeSelector = document.getElementById('chord-type');
     const playChordBtn = document.getElementById('play-chord-btn');
+    let selectedRoot = null;
 
     // Populate Selectors
-    if (window.ChordDB && chordRootSelector && chordTypeSelector) {
-        // Populate Roots
-        Object.keys(ChordDB).forEach(root => {
-            const option = document.createElement('option');
-            option.value = root;
-            option.textContent = root;
-            chordRootSelector.appendChild(option);
+    if (window.ChordDB && chordRootContainer && chordTypeSelector) {
+        // Populate Roots as Radio Buttons
+        const roots = Object.keys(ChordDB);
+        roots.forEach((root, index) => {
+            const radioId = `root-${root}`;
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'chord-root';
+            radio.id = radioId;
+            radio.value = root;
+
+            const label = document.createElement('label');
+            label.htmlFor = radioId;
+            label.textContent = root;
+
+            radio.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    selectedRoot = e.target.value;
+                    handleSelectionChange();
+                }
+            });
+
+            chordRootContainer.appendChild(radio);
+            chordRootContainer.appendChild(label);
         });
 
-        // Function to populate types based on root (though currently all roots have same types)
-        function updateTypeSelector() {
-            const root = chordRootSelector.value;
-            // Clear current types
-            chordTypeSelector.innerHTML = '<option value="" disabled selected>Type</option>';
-
-            if (root && ChordDB[root]) {
-                Object.keys(ChordDB[root]).forEach(type => {
+        // Initialize Type Selector (using the first root to get types, assuming consistency)
+        // We only populate this ONCE now, so it doesn't reset when Key changes
+        if (roots.length > 0) {
+            const sampleRoot = roots[0];
+            if (ChordDB[sampleRoot]) {
+                Object.keys(ChordDB[sampleRoot]).forEach(type => {
                     const option = document.createElement('option');
                     option.value = type;
                     option.textContent = type;
@@ -245,33 +261,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Handle Selection Changes
         function handleSelectionChange() {
-            const root = chordRootSelector.value;
             const type = chordTypeSelector.value;
 
-            if (root && type && ChordDB[root] && ChordDB[root][type]) {
-                const fingering = ChordDB[root][type];
-                const chordName = `${root} ${type}`;
+            if (selectedRoot && type && ChordDB[selectedRoot] && ChordDB[selectedRoot][type]) {
+                const fingering = ChordDB[selectedRoot][type];
+                const chordName = `${selectedRoot} ${type}`;
                 statusDisplay.textContent = `Selected: ${chordName}`;
                 renderFretboard(fingering);
             }
         }
-
-        chordRootSelector.addEventListener('change', () => {
-            updateTypeSelector();
-            // handleSelectionChange(); // Only if we want to auto-select first type? No, wait for user.
-        });
 
         chordTypeSelector.addEventListener('change', handleSelectionChange);
     }
 
     if (playChordBtn) {
         playChordBtn.addEventListener('click', () => {
-            const root = chordRootSelector.value;
             const type = chordTypeSelector.value;
 
-            if (root && type && ChordDB[root]) {
-                const fingering = ChordDB[root][type];
-                const chordName = `${root} ${type}`;
+            if (selectedRoot && type && ChordDB[selectedRoot]) {
+                const fingering = ChordDB[selectedRoot][type];
+                const chordName = `${selectedRoot} ${type}`;
                 statusDisplay.textContent = `Playing: ${chordName}`;
                 GuitarEngine.strum(fingering);
             } else {
